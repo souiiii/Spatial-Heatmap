@@ -1,0 +1,55 @@
+# ===============================================
+# Spatial Heatmap Analytics Engine - Config
+# ===============================================
+
+# --- Batch Writing Settings ---
+# How often to flush the in-memory queue to the database (in ticks, 20 ticks = 1 second).
+flush-interval-ticks: 200
+
+# Maximum number of events in a single batch INSERT.
+# Larger = fewer DB calls but more memory per flush.
+batch-size: 500
+
+# If the queue exceeds this size, trigger an early flush to prevent memory overflow.
+max-queue-size: 50000
+
+# --- Spatial Hashing ---
+# The width of each grid cell in blocks.
+# Smaller = more precise heatmap, more DB data.
+# Larger = coarser heatmap, less DB data. Recommended: 3-8.
+cell-size: 4
+
+# --- Visualization ---
+# Default radius (in blocks) around the player to render heatmap particles.
+render-radius: 64
+
+# How often to refresh particle positions (in ticks). 40 ticks = 2 seconds.
+render-refresh-ticks: 40
+
+# Maximum number of cells to render at once (prevents client-side lag).
+max-render-cells: 1024
+
+# --- Event Tracking ---
+track-events:
+  deaths: true
+  block-breaks: true
+  # Player move uses a scheduled snapshot, NOT PlayerMoveEvent, to avoid performance issues.
+  player-moves: true
+  # Interval in ticks to take a player position snapshot (default 100 = 5s).
+  player-move-interval-ticks: 100
+
+# Blocks to track for the BLOCK_BREAK event type. Empty list = track ALL blocks.
+interesting-blocks:
+  - DIAMOND_ORE
+  - DEEPSLATE_DIAMOND_ORE
+  - ANCIENT_DEBRIS
+  - EMERALD_ORE
+  - DEEPSLATE_EMERALD_ORE
+  - GOLD_ORE
+  - DEEPSLATE_GOLD_ORE
+  - IRON_ORE
+  - DEEPSLATE_IRON_ORE
+
+# --- Database ---
+# SQLite database file name (stored in plugin data folder).
+database-file: heatmap.db
