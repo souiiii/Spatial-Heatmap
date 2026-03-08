@@ -50,12 +50,11 @@ public class HeatmapPlugin extends JavaPlugin {
         int cellSize = getConfig().getInt("cell-size", 4);
         SpatialHashMap spatialMap = new SpatialHashMap(cellSize);
 
-        // Circular dependency resolution managed via Engine composition
-        analyticsEngine = new AnalyticsEngine(this, databaseManager, writeQueue, spatialMap, null);
+        // Build engine first, then inject renderer via setter to avoid circular
+        // dependency.
+        analyticsEngine = new AnalyticsEngine(this, databaseManager, writeQueue, spatialMap);
         heatmapRenderer = new HeatmapRenderer(analyticsEngine);
-
-        // Inject the renderer now that it's created
-        analyticsEngine = new AnalyticsEngine(this, databaseManager, writeQueue, spatialMap, heatmapRenderer);
+        analyticsEngine.setRenderer(heatmapRenderer);
 
         // 4. Register Event Listeners
         if (getConfig().getBoolean("track-events.deaths", true)) {
@@ -99,11 +98,23 @@ public class HeatmapPlugin extends JavaPlugin {
             heatmapRenderer.stopAll();
         }
 
-        // 3. Stop the scheduler and perform a mandatory final flush of the queue
+        // 3. Cancel the periodic scheduler, then perform a final queue flush
+        // on a dedicated thread so we don't stall the main server thread.
         if (writeQueue != null) {
             writeQueue.stop();
-            getLogger().info("Executing final synchronous queue flush...");
-            writeQueue.forceFlush();
+            getLogger().info("Executing final queue flush on dedicated thread...");
+            Thread flushThread = new Thread(() -> {
+                writeQueue.forceFlush();
+                getLogger().info("[BatchWriteQueue] Final flush thread finished.");
+            }, "heatmap-shutdown-flush");
+            flushThread.start();
+            try {
+                // Wait up to 10 seconds for the flush to complete before closing the DB.
+                flushThread.join(10_000);
+            } catch (InterruptedException ie) {
+                Thread.currentThread().interrupt();
+                getLogger().warning("[HeatmapPlugin] Interrupted while waiting for flush thread.");
+            }
         }
 
         // 4. Close database connection safely

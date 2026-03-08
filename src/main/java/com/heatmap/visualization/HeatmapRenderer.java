@@ -13,6 +13,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 /**
@@ -36,10 +37,10 @@ public class HeatmapRenderer {
     private final AnalyticsEngine engine;
 
     /** Maps player UUID → their active render task (null if not rendering). */
-    private final Map<UUID, BukkitTask> activeTasks = new HashMap<>();
+    private final Map<UUID, BukkitTask> activeTasks = new ConcurrentHashMap<>();
 
     /** Per-player loaded spatial maps (loaded async, consumed sync). */
-    private final Map<UUID, SpatialHashMap> playerMaps = new HashMap<>();
+    private final Map<UUID, SpatialHashMap> playerMaps = new ConcurrentHashMap<>();
 
     public HeatmapRenderer(AnalyticsEngine engine) {
         this.engine = engine;

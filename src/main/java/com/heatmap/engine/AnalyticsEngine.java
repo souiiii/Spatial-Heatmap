@@ -22,17 +22,25 @@ public class AnalyticsEngine {
     private final DatabaseManager dbManager;
     private final BatchWriteQueue writeQueue;
     private final SpatialHashMap spatialMap;
-    private final HeatmapRenderer renderer;
+    private HeatmapRenderer renderer;
 
     public AnalyticsEngine(HeatmapPlugin plugin,
             DatabaseManager dbManager,
             BatchWriteQueue writeQueue,
-            SpatialHashMap spatialMap,
-            HeatmapRenderer renderer) {
+            SpatialHashMap spatialMap) {
         this.plugin = plugin;
         this.dbManager = dbManager;
         this.writeQueue = writeQueue;
         this.spatialMap = spatialMap;
+        this.renderer = null;
+    }
+
+    /**
+     * Injects the renderer after construction to resolve the circular
+     * dependency between AnalyticsEngine and HeatmapRenderer.
+     * Must be called once before the plugin accepts player commands.
+     */
+    public void setRenderer(HeatmapRenderer renderer) {
         this.renderer = renderer;
     }
 

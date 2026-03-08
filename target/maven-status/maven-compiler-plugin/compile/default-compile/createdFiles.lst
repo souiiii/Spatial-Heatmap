@@ -1,0 +1,14 @@
+com\heatmap\spatial\CellKey.class
+com\heatmap\spatial\SpatialHashMap.class
+com\heatmap\visualization\HeatmapRenderer$1.class
+com\heatmap\engine\AnalyticsEngine.class
+com\heatmap\listeners\BlockBreakListener.class
+com\heatmap\visualization\HeatmapRenderer.class
+com\heatmap\database\DatabaseManager.class
+com\heatmap\HeatmapPlugin.class
+com\heatmap\commands\HeatmapCommand.class
+com\heatmap\listeners\PlayerDeathListener.class
+com\heatmap\model\DataPoint.class
+com\heatmap\engine\BatchWriteQueue.class
+com\heatmap\listeners\PlayerMoveListener.class
+com\heatmap\model\EventType.class
